@@ -40,7 +40,7 @@ def merkle_assignment():
         tx_hash = '0x'
         # TODO, when you are ready to attempt to claim a prime (and pay gas fees),
         #  complete this method and run your code with the following line un-commented
-        #tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
+        tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
 
 
 def generate_primes(num_primes):
@@ -87,7 +87,7 @@ def build_merkle(leaves):
         parent_level = []
         for i in range(0, len(tree[-1]), 2):
             a = tree[-1][i]
-            b = tree[-1][i + 1] if i + 1 < len(tree[-1]) else a  # Handle odd number of elements
+            b = tree[-1][i + 1] if i + 1 < len(tree[-1]) else a  
             parent_level.append(hash_pair(a, b))
         tree.append(parent_level)
 
@@ -149,7 +149,28 @@ def send_signed_msg(proof, random_leaf):
     w3 = connect_to(chain)
 
     # TODO YOUR CODE HERE
-    tx_hash = 'placeholder'
+    proof_bytes = [Web3.toBytes(x) for x in proof]  
+    random_leaf_bytes = random_leaf if isinstance(random_leaf, bytes) else int.to_bytes(random_leaf, 32, 'big') 
+
+    #print(f"Proof: {proof_bytes}")
+    #print(f"Random Leaf: {random_leaf_bytes}")
+
+    contract = w3.eth.contract(address=address, abi=abi)
+
+    
+    tx = contract.functions.submitProof(proof_bytes, random_leaf_bytes).build_transaction({
+        'from': acct.address,
+        'gas': 10**6,  
+        'gasPrice': w3.eth.gas_price,  
+        'nonce': w3.eth.get_transaction_count(acct.address), 
+    })
+
+   
+    signed_tx = w3.eth.account.sign_transaction(tx, acct.privateKey)
+
+    tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+
+
     
     return tx_hash
 

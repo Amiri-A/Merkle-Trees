@@ -149,9 +149,8 @@ def send_signed_msg(proof, random_leaf):
     w3 = connect_to(chain)
 
     # TODO YOUR CODE HERE
-    proof_bytes = [Web3.toBytes(x) for x in proof]  
-    random_leaf_bytes = random_leaf if isinstance(random_leaf, bytes) else int.to_bytes(random_leaf, 32, 'big') 
-
+    proof_bytes = [bytes(x) for x in proof]
+    random_leaf_bytes = random_leaf if isinstance(random_leaf, bytes) else int.to_bytes(random_leaf, 32, 'big')
     #print(f"Proof: {proof_bytes}")
     #print(f"Random Leaf: {random_leaf_bytes}")
 
@@ -159,11 +158,12 @@ def send_signed_msg(proof, random_leaf):
 
     
     tx = contract.functions.submitProof(proof_bytes, random_leaf_bytes).build_transaction({
-        'from': acct.address,
-        'gas': 10**6,  
-        'gasPrice': w3.eth.gas_price,  
-        'nonce': w3.eth.get_transaction_count(acct.address), 
-    })
+    'from': acct.address,
+    'gas': 10**6,
+    'gasPrice': w3.eth.gas_price,
+    'nonce': w3.eth.get_transaction_count(acct.address), 
+})
+
 
    
     signed_tx = w3.eth.account.sign_transaction(tx, acct.privateKey)

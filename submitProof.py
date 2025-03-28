@@ -4,7 +4,7 @@ import string
 import json
 from pathlib import Path
 from web3 import Web3
-from web3.middleware import ExtraDataToPOAMiddleware  # Necessary for POA chains
+from web3.middleware import ExtraDataToPOAMiddleware  
 
 
 def merkle_assignment():
@@ -40,7 +40,7 @@ def merkle_assignment():
         tx_hash = '0x'
         # TODO, when you are ready to attempt to claim a prime (and pay gas fees),
         #  complete this method and run your code with the following line un-commented
-        # tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
+        tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
 
 
 def generate_primes(num_primes):
@@ -159,7 +159,7 @@ def send_signed_msg(proof, random_leaf):
     contract = w3.eth.contract(address=address, abi=abi)
 
     
-    tx = contract.functions.submitProof(proof_bytes, random_leaf_bytes).build_transaction({
+    tx = contract.functions.submit(proof_bytes, random_leaf_bytes).build_transaction({
         'from': acct.address,
         'gas': 10**6,  
         'gasPrice': w3.eth.gas_price,  
@@ -167,7 +167,7 @@ def send_signed_msg(proof, random_leaf):
     })
 
    
-    signed_tx = w3.eth.account.sign_transaction(tx, acct.privateKey)
+    signed_tx = w3.eth.account.sign_transaction(tx, acct.private_key)
 
     tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
 

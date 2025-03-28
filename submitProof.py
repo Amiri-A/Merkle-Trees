@@ -158,12 +158,11 @@ def send_signed_msg(proof, random_leaf):
 
     
     tx = contract.functions.submitProof(proof_bytes, random_leaf_bytes).build_transaction({
-    'from': acct.address,
-    'gas': 10**6,
-    'gasPrice': w3.eth.gas_price,
-    'nonce': w3.eth.get_transaction_count(acct.address), 
-})
-
+        'from': acct.address,
+        'gas': 10**6,  
+        'gasPrice': w3.eth.gas_price,  
+        'nonce': w3.eth.get_transaction_count(acct.address), 
+    })
 
    
     signed_tx = w3.eth.account.sign_transaction(tx, acct.privateKey)

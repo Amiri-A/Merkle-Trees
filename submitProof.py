@@ -28,7 +28,7 @@ def merkle_assignment():
     tree = build_merkle(leaves)
 
     # Select a random leaf and create a proof for that leaf
-    random_leaf_index = 0 #TODO generate a random index from primes to claim (0 is already claimed)
+    random_leaf_index = random.randint(0, num_of_primes - 1) #TODO generate a random index from primes to claim (0 is already claimed)
     proof = prove_merkle(tree, random_leaf_index)
 
     # This is the same way the grader generates a challenge for sign_challenge()
@@ -40,7 +40,7 @@ def merkle_assignment():
         tx_hash = '0x'
         # TODO, when you are ready to attempt to claim a prime (and pay gas fees),
         #  complete this method and run your code with the following line un-commented
-        # tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
+        #tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
 
 
 def generate_primes(num_primes):
@@ -51,6 +51,11 @@ def generate_primes(num_primes):
     primes_list = []
 
     #TODO YOUR CODE HERE
+    num = 2
+    while len(primes_list) < num_primes:
+        if all(num % p != 0 for p in primes_list):  
+            primes_list.append(num)
+        num += 1
 
     return primes_list
 
@@ -62,8 +67,9 @@ def convert_leaves(primes_list):
     """
 
     # TODO YOUR CODE HERE
+    return [int.to_bytes(p, 32, 'big') for p in primes_list]
 
-    return []
+    #return []
 
 
 def build_merkle(leaves):
@@ -75,7 +81,16 @@ def build_merkle(leaves):
     """
 
     #TODO YOUR CODE HERE
-    tree = []
+    #tree = []
+    tree = [leaves]
+    while len(tree[-1]) > 1:
+        parent_level = []
+        for i in range(0, len(tree[-1]), 2):
+            a = tree[-1][i]
+            b = tree[-1][i + 1] if i + 1 < len(tree[-1]) else a  # Handle odd number of elements
+            parent_level.append(hash_pair(a, b))
+        tree.append(parent_level)
+
 
     return tree
 
@@ -89,7 +104,12 @@ def prove_merkle(merkle_tree, random_indx):
     """
     merkle_proof = []
     # TODO YOUR CODE HERE
-
+    index = random_indx
+    for level in merkle_tree[:-1]:  
+        sibling_index = index ^ 1  
+        sibling_hash = level[sibling_index]
+        merkle_proof.append(sibling_hash)  
+        index //= 2
     return merkle_proof
 
 
@@ -101,13 +121,17 @@ def sign_challenge(challenge):
         This method is to allow the auto-grader to verify that you have
         claimed a prime
     """
-    acct = get_account()
+    private_key = "b55d023def3b04912953e0ed6a059eccfdadf066de0a4e8b8a8f3bde95c80461"  
+    acct = eth_account.Account.from_key(private_key)
+    #acct = get_account()
 
     addr = acct.address
     eth_sk = acct.key
 
     # TODO YOUR CODE HERE
     eth_sig_obj = 'placeholder'
+    #eth_sig_obj = acct.sign_message(challenge) #will update later with private key
+    eth_sig_obj = eth_account.Account.sign_message(eth_account.messages.encode_defunct(text=challenge), eth_sk)
 
     return addr, eth_sig_obj.signature.hex()
 
@@ -126,7 +150,7 @@ def send_signed_msg(proof, random_leaf):
 
     # TODO YOUR CODE HERE
     tx_hash = 'placeholder'
-
+    
     return tx_hash
 
 

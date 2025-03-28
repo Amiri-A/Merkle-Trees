@@ -40,7 +40,7 @@ def merkle_assignment():
         tx_hash = '0x'
         # TODO, when you are ready to attempt to claim a prime (and pay gas fees),
         #  complete this method and run your code with the following line un-commented
-        tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
+        # tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
 
 
 def generate_primes(num_primes):
@@ -87,7 +87,7 @@ def build_merkle(leaves):
         parent_level = []
         for i in range(0, len(tree[-1]), 2):
             a = tree[-1][i]
-            b = tree[-1][i + 1] if i + 1 < len(tree[-1]) else a  
+            b = tree[-1][i + 1] if i + 1 < len(tree[-1]) else a  # Handle odd number of elements
             parent_level.append(hash_pair(a, b))
         tree.append(parent_level)
 
@@ -132,6 +132,8 @@ def sign_challenge(challenge):
     eth_sig_obj = 'placeholder'
     #eth_sig_obj = acct.sign_message(challenge) #will update later with private key
     eth_sig_obj = eth_account.Account.sign_message(eth_account.messages.encode_defunct(text=challenge), eth_sk)
+
+    
 
     return addr, eth_sig_obj.signature.hex()
 
